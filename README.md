@@ -38,3 +38,17 @@ context.watch<AppState>();
 // DO NOT rebuild widget when state changes.
 context.read<AppState>();
 ```
+
+Pass data that has already been instantiated between `BuildContext`s by using `Provider.value`.
+
+```dart
+final appState = context.read<AppState>();
+Navigator.of(context).push(
+    MaterialPageRoute(builder: (context) {
+        return Provider.value(
+            value: appState,
+            child: ...,
+        );
+    }),
+);
+```
