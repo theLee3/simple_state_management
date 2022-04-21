@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:simple_provider_demo/app_state.dart';
+import 'package:simple_provider_demo/states.dart';
 import 'package:simple_state_management/simple_provider.dart';
 
 void main() {
@@ -17,8 +17,17 @@ class App extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: Provider(
-        create: () => AppState(),
-        child: const HomePage(title: 'Inherited Counter Demo'),
+        create: () => AuthState(),
+        child: Builder(builder: (context) {
+          if (context.watch<AuthState>().isLoggedIn) {
+            return Provider(
+              create: () => AppState(),
+              child: const HomePage(title: 'Inherited Counter Demo'),
+            );
+          } else {
+            return const LoginPage();
+          }
+        }),
       ),
     );
   }
@@ -40,6 +49,14 @@ class HomePage extends StatelessWidget {
             return AppBar(
               title: Text(title, style: TextStyle(color: appState.textColor)),
               backgroundColor: appState.backgroundColor,
+              actions: [
+                PopupMenuButton(
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(child: Text('Logout'), value: true),
+                  ],
+                  onSelected: (value) => context.read<AuthState>().logout,
+                ),
+              ],
             );
           }),
         ),
@@ -67,6 +84,22 @@ class HomePage extends StatelessWidget {
           child: Icon(Icons.add, color: appState.textColor),
         );
       }),
+    );
+  }
+}
+
+class LoginPage extends StatelessWidget {
+  const LoginPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: OutlinedButton(
+          onPressed: context.read<AuthState>().login,
+          child: const Text('Login'),
+        ),
+      ),
     );
   }
 }
